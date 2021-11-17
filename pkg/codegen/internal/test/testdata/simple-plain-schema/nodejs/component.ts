@@ -91,5 +91,5 @@ export interface ComponentArgs {
     d?: number;
     e: string;
     f?: string;
-    foo?: pulumi.Input<inputs.FooArgs>;
+    foo?: pulumi.Input<inputs.FooArgs | undefined>;
 }

@@ -51,5 +51,5 @@ export class OtherResource extends pulumi.ComponentResource {
  */
 export interface OtherResourceArgs {
     bar?: pulumi.Input<string>[];
-    foo?: pulumi.Input<Resource>;
+    foo?: pulumi.Input<Resource | undefined>;
 }
