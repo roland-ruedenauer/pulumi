@@ -11,6 +11,9 @@ import (
 	"strings"
 	"testing"
 
+	w "github.com/pulumi/pulumi/sdk/v3/go/common/workspace"
+	"os/exec"
+
 	"github.com/pulumi/pulumi/pkg/v3/testing/integration"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
 	ptesting "github.com/pulumi/pulumi/sdk/v3/go/common/testing"
@@ -468,9 +471,48 @@ func TestConstructPlainDotnet(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.componentDir, func(t *testing.T) {
-			pathEnv := pathEnv(t, filepath.Join("construct_component_plain", test.componentDir))
+
+			extraPath := filepath.Join("construct_component_plain", test.componentDir)
+			t.Logf("Debug extraPath: %v", extraPath)
+
+			pathEnv := pathEnv(t, extraPath)
+			t.Logf("Debug pathEnv: %v", pathEnv)
+
+			filename := (&w.PluginInfo{
+				Kind:    "resource",
+				Name:    "testcomponent",
+				Version: nil,
+			}).FilePrefix()
+
+			err := filepath.Walk(pathEnv,
+				func(path string, info os.FileInfo, err error) error {
+					if err != nil {
+						return err
+					}
+					t.Logf("Found in %s: %s: %d",
+						pathEnv, path, info.Size())
+					return nil
+				})
+			if err != nil {
+				t.Error(err)
+			}
+
+			oldPath := os.Getenv("PATH")
+			os.Setenv("PATH", pathEnv)
+
+			path, err := exec.LookPath(filename)
+			if err != nil {
+				t.Logf("exec.LookPath failed: %v", err)
+			} else {
+				t.Logf("exec.LookPath found: %v", path)
+			}
+
+			os.Setenv("PATH", oldPath)
+
 			integration.ProgramTest(t,
-				optsForConstructPlainDotnet(t, test.expectedResourceCount, append(test.env, pathEnv)...))
+				optsForConstructPlainDotnet(t,
+					test.expectedResourceCount,
+					append(test.env, pathEnv)...))
 		})
 	}
 }
