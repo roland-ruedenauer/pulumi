@@ -77,6 +77,16 @@ type DecryptValueResponse struct {
 	Plaintext []byte `json:"plaintext"`
 }
 
+// BulkDecryptValueRequest defines the request body for bulk decrypting secret values.
+type BulkDecryptValueRequest struct {
+	Secrets map[string][]byte `json:"secrets"`
+}
+
+// BulkDecryptValueResponse defines the response body for bulk decrypted secret values.
+type BulkDecryptValueResponse struct {
+	DecryptedSecrets map[string][]byte `json:"decryptedSecrets"`
+}
+
 // Log3rdPartyDecryptionEvent defines the request body for logging a 3rd party secrets provider decryption event.
 type Log3rdPartyDecryptionEvent struct {
 	SecretName  string `json:"secretName,omitempty"`
